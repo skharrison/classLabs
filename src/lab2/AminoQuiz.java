@@ -21,16 +21,18 @@ public class AminoQuiz
 	
 	public static void StartQuiz() 
 	{
-		long startT = System.currentTimeMillis();
+		
 		boolean correct = true;
 		
 		System.out.println("~Begin Amino Acid Quiz~");
 		
 		while (correct)
 		{
+			long startT = System.currentTimeMillis();
+			
 			int ansCorrect = 0;
-			long timeLimit = 30000;
-			for(int i = 0; i < 20; i ++)
+			double timeLimit = 30;
+			for(int i = 0; i < 10000; i ++)
 			{
 			
 				Random r = new Random();
@@ -41,7 +43,25 @@ public class AminoQuiz
 				String c = SHORT_NAMES[x];
 				
 				if (ans.equals(c) == true)
+				{
 					ansCorrect += 1;
+					
+					long elapsedT = System.currentTimeMillis();
+					double timeCheck = (elapsedT - startT)/(1000d);
+					
+					// System.out.println(timeCheck);
+				
+					if(timeCheck >= timeLimit)
+					{
+						System.out.println("OUT OF TIME! GAME OVER!");
+						System.out.println("-----------------------");
+						break;
+						
+					}
+					
+				}
+				
+				
 				
 				else
 				{
@@ -51,25 +71,15 @@ public class AminoQuiz
 				}
 				
 				
-				long elapsedT = System.currentTimeMillis();
-				long timeCheck = elapsedT - startT;
-				
-				System.out.println(timeCheck);
-			
-				if(timeCheck >= timeLimit)
-				{
-					System.out.println("OUT OF TIME! GAME OVER!");
-					System.out.println("-----------------------");
-					break;
-				}
-				
+	
 			
 				
 			}
 			// long elapsedT = (System.currentTimeMillis())/(1000l);
 			
-			long endT = (System.currentTimeMillis())/(1000l);
+			long endT = System.currentTimeMillis();
 			double totalTsec = (endT - startT)/ 1000d;
+			
 			
 			System.out.println("Total time: " + totalTsec + " seconds");
 			System.out.println("# Of Correct Answers: " + ansCorrect);
