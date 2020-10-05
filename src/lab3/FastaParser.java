@@ -45,18 +45,12 @@ public class FastaParser
 			
 			for (String s : seqs)
 			{
-				//if (counter.containsKey(s))
-				//{
+				
 					Integer count = counter.get(s);
 					int value = count.intValue();
 					value++;
 					counter.put(s, value);	
-				//}
-				//else 
-				//{
-					//Integer count = Integer.valueOf(1);
-					//counter.put(s,  count);
-				//}
+			
 				
 			
 			}
