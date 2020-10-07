@@ -11,7 +11,6 @@ import java.util.Map;
 public class Fasta
 {
 	File input;
-	// public boolean validate = false;
 	
 	Fasta(File file) 
 	{
@@ -108,7 +107,7 @@ public class Fasta
 				writeCounts(counter, header, writer, seqTypes,seq);
 				break;
 		    } 
-			
+			//adds header line and defaults values 
 			else if (line != null && line.startsWith(">"))
 			{
 				if (header != null)
@@ -120,13 +119,14 @@ public class Fasta
 				counter = resetCount(counter, seqTypes);
 				seq = "";
 				
+				//adds header to outfile
 				if (writeH == true)
 				{
 					writeHeader(writer, seqTypes);
 					writeH = false;
 				}
 		     } 
-			 
+			 //counts each sequence type of line
 			else if (line != null && header != null)
 			{
 				String trimSeq = line.trim();
@@ -144,7 +144,7 @@ public class Fasta
 		long endT = System.currentTimeMillis();
 		double totalTsec = (endT - startT)/ 1000d;
 		
-		System.out.println("...Finished counting fasta sequences in " + totalTsec + " seconds");
+		System.out.println("...Finished counts in: " + totalTsec + " seconds");
 		System.out.println("---> Sequence counts saved to: " + outFile);
 		
 		writer.close();
