@@ -81,7 +81,6 @@ public class Fasta
 			writer.write("\t" + s);
 		}
 		writer.write("\tSeqLen\tSeq\n");
-	
 	}
 	
 	public void count(File outFile,  String[] seqTypes) throws Exception
@@ -90,9 +89,9 @@ public class Fasta
 		
 		Map<String, Integer> counter = null;
 		
-	    String header = null;
-	    String seq = "";
-	    boolean writeH = true;
+		String header = null;
+		String seq = "";
+		boolean writeH = true;
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 		BufferedReader reader = new BufferedReader(new FileReader(this.input));
@@ -106,9 +105,10 @@ public class Fasta
 		
 			if (line == null && header != null)
 			{
-				writeCounts(counter, header, writer, seqTypes,seq);
+				writeCounts(counter, header, writer, seqTypes, seq);
 				break;
-		    } 
+			}
+			
 			//adds header line and defaults values 
 			else if (line != null && line.startsWith(">"))
 			{
@@ -127,20 +127,21 @@ public class Fasta
 					writeHeader(writer, seqTypes);
 					writeH = false;
 				}
-		     } 
+			}
+	
 			 //counts each sequence type of line
 			else if (line != null && header != null)
 			{
 				String trimSeq = line.trim();
 				seq += trimSeq;
 				countSeqs(line, counter);
-		     }
+			}
 			
 			else
 			{
 				System.out.println("ERROR: Malformed file!");
 				break;
-			 }
+			}
 		}
 		
 		long endT = System.currentTimeMillis();
@@ -148,7 +149,6 @@ public class Fasta
 		
 		System.out.println("...Finished counts in: " + totalTsec + " seconds");
 		System.out.println("---> Sequence counts saved to: " + outFile);
-		
 		writer.close();
 		reader.close();
 		
@@ -158,12 +158,9 @@ public class Fasta
 	{
 		File fileOut = new File("/home/sarah/school/adv_program/testFastaCounts.txt");
 		File fileIn = new File("/home/sarah/school/adv_program/testFasta.fasta");
-		
 		String[] seqTypes = {"A", "T", "C", "G"};
 		Fasta fasta = new Fasta(fileIn);
 		fasta.count(fileOut, seqTypes);
-		
-			
 	}
 
 }
