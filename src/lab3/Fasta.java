@@ -37,6 +37,7 @@ public class Fasta
 			System.out.println("ERROR: Improper file format ");
 		}	
 	}
+	
 	public void countSeqs(String line, Map<String, Integer> counter)
 	{
 		if (counter != null && line != null)
@@ -60,8 +61,9 @@ public class Fasta
 		}
 	}
 	
-	public Map<String, Integer> resetCount( Map<String, Integer> counter , String[] seqTypes)
+	public Map<String, Integer> newCounter(String[] seqTypes)
 	{
+		Map<String, Integer> counter = new HashMap<String, Integer>();
 		for (String s : seqTypes)
 		{
 			Integer count = Integer.valueOf(0);
@@ -86,7 +88,7 @@ public class Fasta
 	{
 		long startT = System.currentTimeMillis();
 		
-		Map<String, Integer> counter = new HashMap<String, Integer>();
+		Map<String, Integer> counter = null;
 		
 	    String header = null;
 	    String seq = "";
@@ -116,7 +118,7 @@ public class Fasta
 				}
 				
 				header = line.substring(1);
-				counter = resetCount(counter, seqTypes);
+				counter = newCounter(seqTypes);
 				seq = "";
 				
 				//adds header to outfile
