@@ -164,7 +164,7 @@ public class FastaSequence {
 	}
 	
 	@Override
-    public String toString() 
+	public String toString()
 	{
 		return String.format("Fasta Sequence with ID: " + this.header);
 	}
