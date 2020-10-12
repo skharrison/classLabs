@@ -2,20 +2,18 @@ package lab4;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 
 public class FastaSequence {
 	
-	String header;
-	String sequence;
+	private final String header;
+	private final String sequence;
+	float gcRatio;
 	
 	FastaSequence(String header, String sequence) 
 	{
@@ -74,10 +72,8 @@ public class FastaSequence {
 		
 	}
 	
-	public static void writeUnique(String inFile, String outFile) throws Exception 
+	public static void writeUnique(String outFile, List<FastaSequence> fastaList) throws Exception 
 	{
-		List<FastaSequence> fastaList = FastaSequence.readFastaFile(inFile);
-		
 		Map<String, Integer> counter = new HashMap<String, Integer>();
 		
 		for (FastaSequence fastSeq : fastaList)
@@ -97,54 +93,41 @@ public class FastaSequence {
 			}
 		}
 		
-		List<Integer> countL = new ArrayList<Integer>();
+		List<SeqCount> sortSeqCount = sortSeqs(counter);
+		SeqCount.writeCountFasta(sortSeqCount, outFile);
+		
+	}
+	
+	public static List<SeqCount> sortSeqs(Map<String, Integer> counter)
+	{
+		List<SeqCount> seqC = new ArrayList<SeqCount>();
 		for (Map.Entry<String,Integer> entry : counter.entrySet())
 		{
-			countL.add(entry.getValue());
+			SeqCount s = new SeqCount(entry.getKey(), entry.getValue());
+			seqC.add(s);
 		}
-		Map<String, Integer> sortedMap = sortMap(counter,countL);
-		File outF = new File(outFile);
-		writeNewFasta(sortedMap, outF);
-	}
-	
-	public static void writeNewFasta(Map<String,Integer> seqMap, File outFile) throws Exception
-	{
-		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
-		for (Map.Entry<String,Integer> entry : seqMap.entrySet())
-		{
-			writer.write(">" + entry.getValue() + "\n" + entry.getKey() + "\n");
-		}
-		writer.close();
-	}
-	
-	public static Map<String, Integer> sortMap(Map<String, Integer> counter, List<Integer> countL)
-	{
-		Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-		Collections.sort(countL);
-		for (Integer i : countL)
-		{
-			for(Map.Entry<String,Integer> entry : counter.entrySet())
-			{
-				if (entry.getValue().equals(i))
-				{
-					sortedMap.put(entry.getKey(), i);
-				}
-			}
-		}
-		return(sortedMap);
+		
+		Collections.sort(seqC);
+		return(seqC);
+		
 	}
 	
 	public String getHeader()
 	{
-		return(this.header);
+		return("Header: " + this.header);
 	}
 	
 	public String getSequence()
 	{
-		return(this.sequence);
+		return("Sequence: " + this.sequence);
 	}
 	
-	public float getGCRatio()
+	public String getGC()
+	{
+		return("GC Ratio: " + this.gcRatio);
+	}
+	
+	public void computeGC()
 	{
 		int gcCount = 0;
 		
@@ -159,8 +142,8 @@ public class FastaSequence {
 		}
 		
 		float gcRatio = (float) gcCount / seqs.length;
+		this.gcRatio = gcRatio;
 		
-		return(gcRatio);
 	}
 	
 	@Override
@@ -171,19 +154,19 @@ public class FastaSequence {
 	
 	public static void main(String[] args) throws Exception
 	{
-		String fileIn = "/home/sarah/school/adv_program/testFasta.fasta";
+		String fileIn = "/home/sarah/school/adv_program/uniqueTest.fasta";
+		String fileOut = "/home/sarah/school/adv_program/uniqueTestOut.fasta";
+		
 		List<FastaSequence> fastaList = FastaSequence.readFastaFile(fileIn);
-		System.out.println(fastaList);
 		
-		for( FastaSequence fs : fastaList)
+		for(FastaSequence fs : fastaList)
 		{
-		System.out.println(fs.getHeader());
-		System.out.println(fs.getSequence());
-		System.out.println(fs.getGCRatio());
+			fs.computeGC();
+			System.out.println(fs.getHeader());
+			System.out.println(fs.getSequence());
+			System.out.println(fs.getGC());
 		}
-		
-		String uniqueTest = "/home/sarah/school/adv_program/uniqueTest.fasta";
-		String uniqueTestOut = "/home/sarah/school/adv_program/uniqueTestOut.fasta";
-		writeUnique(uniqueTest, uniqueTestOut);
+
+		writeUnique(fileOut, fastaList);
 	}
 }
