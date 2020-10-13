@@ -15,6 +15,16 @@ public class SeqCount implements Comparable<SeqCount>
 		this.seqName = seqName;
 		this.count = count;
 	}
+	
+	public void incrementCount()
+	{
+		this.count++;
+	}
+	
+	public int getCount()
+	{
+		return this.getCount();
+	}
 
 	@Override
 	public int compareTo(SeqCount s1) 
@@ -36,6 +46,8 @@ public class SeqCount implements Comparable<SeqCount>
 			writer.write(">" + s.count + "\n" + s.seqName + "\n");
 		}
 		writer.close();
+		
+		System.out.println("Sequence count fasta saved to " + outFile + "...");
 	}
 
 }

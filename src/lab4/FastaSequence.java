@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.io.BufferedReader;
 
+
 public class FastaSequence {
 	
 	private final String header;
@@ -29,7 +30,7 @@ public class FastaSequence {
 		BufferedReader reader = new BufferedReader(new FileReader(fileIn));
 		
 		String header = null;
-		String seq = "";
+		StringBuffer seq = new StringBuffer();
 		
 		while(true)
 		{
@@ -37,7 +38,8 @@ public class FastaSequence {
 		
 			if (line == null && header != null)
 			{
-				FastaSequence myFasta = new FastaSequence(header, seq);
+				String strSeq = seq.toString();
+				FastaSequence myFasta = new FastaSequence(header, strSeq);
 				fastaList.add(myFasta);
 				break;
 			}
@@ -46,18 +48,19 @@ public class FastaSequence {
 			{
 				if (header != null)
 				{
-					FastaSequence myFasta = new FastaSequence(header, seq);
+					String strSeq = seq.toString();
+					FastaSequence myFasta = new FastaSequence(header, strSeq);
 					fastaList.add(myFasta);
 				}
 				
 				header = line.substring(1);
-				seq = "";
+				seq.delete(0, seq.length());
 			}
 			
 			else if (line != null && header != null)
 			{
 				String trimSeq = line.trim();
-				seq += trimSeq;
+				seq.append(trimSeq);
 			}
 			
 			else
@@ -72,39 +75,39 @@ public class FastaSequence {
 		
 	}
 	
+	// takes fasta list and map where k is sequence and value is SeqCount object
+	// SeqCount object increments count if comes across sequence
 	public static void writeUnique(String outFile, List<FastaSequence> fastaList) throws Exception 
 	{
-		Map<String, Integer> counter = new HashMap<String, Integer>();
+		Map<String, SeqCount> counter = new HashMap<String, SeqCount>();
 		
 		for (FastaSequence fastSeq : fastaList)
 		{
 			String sequence = fastSeq.sequence;
 			if (counter.containsKey(sequence)) 
 			{
-				Integer count = counter.get(sequence);
-				int value = count.intValue();
-				value++;
-				counter.put(sequence, value);
+				SeqCount count = counter.get(sequence);
+				count.incrementCount();
 			}
 			else 
 			{
-				Integer count = 1;
+				SeqCount count = new SeqCount(sequence, 1);
 				counter.put(sequence, count);
 			}
 		}
 		
 		List<SeqCount> sortSeqCount = sortSeqs(counter);
-		SeqCount.writeCountFasta(sortSeqCount, outFile);
+		SeqCount.writeCountFasta(sortSeqCount, outFile);    // calls static SeqCount method to make new count fasta
 		
 	}
 	
-	public static List<SeqCount> sortSeqs(Map<String, Integer> counter)
+	// adds each SeqCount object to a list and returns sorted list based on comparable of SeqCount
+	public static List<SeqCount> sortSeqs(Map<String, SeqCount> counter)
 	{
 		List<SeqCount> seqC = new ArrayList<SeqCount>();
-		for (Map.Entry<String,Integer> entry : counter.entrySet())
+		for (SeqCount entry : counter.values())
 		{
-			SeqCount s = new SeqCount(entry.getKey(), entry.getValue());
-			seqC.add(s);
+			seqC.add(entry);
 		}
 		
 		Collections.sort(seqC);
@@ -131,7 +134,8 @@ public class FastaSequence {
 	{
 		int gcCount = 0;
 		
-		String[] seqs = this.sequence.split("");
+		String str = this.sequence.toString();
+		String[] seqs = str.split("");
 		
 		for (String s : seqs)
 		{
