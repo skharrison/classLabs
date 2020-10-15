@@ -54,7 +54,7 @@ public class FastaSequence {
 				}
 				
 				header = line.substring(1);
-				seq.delete(0, seq.length());
+				seq = new StringBuffer();
 			}
 			
 			else if (line != null && header != null)
@@ -79,20 +79,22 @@ public class FastaSequence {
 	// SeqCount object increments count if comes across sequence
 	public static void writeUnique(String outFile, List<FastaSequence> fastaList) throws Exception 
 	{
-		Map<String, SeqCount> counter = new HashMap<String, SeqCount>();
+		Map<Integer, SeqCount> counter = new HashMap<Integer, SeqCount>();
 		
 		for (FastaSequence fastSeq : fastaList)
 		{
+			//Saving string as hashKey in map to save memory if large seqs
 			String sequence = fastSeq.sequence;
-			if (counter.containsKey(sequence)) 
+			int hashKey = sequence.hashCode();
+			if (counter.containsKey(hashKey)) 
 			{
-				SeqCount count = counter.get(sequence);
+				SeqCount count = counter.get(hashKey);
 				count.incrementCount();
 			}
 			else 
 			{
 				SeqCount count = new SeqCount(sequence, 1);
-				counter.put(sequence, count);
+				counter.put(hashKey, count);
 			}
 		}
 		
@@ -102,7 +104,7 @@ public class FastaSequence {
 	}
 	
 	// adds each SeqCount object to a list and returns sorted list based on comparable of SeqCount
-	public static List<SeqCount> sortSeqs(Map<String, SeqCount> counter)
+	public static List<SeqCount> sortSeqs(Map<Integer, SeqCount> counter)
 	{
 		List<SeqCount> seqC = new ArrayList<SeqCount>();
 		for (SeqCount entry : counter.values())
@@ -117,25 +119,24 @@ public class FastaSequence {
 	
 	public String getHeader()
 	{
-		return("Header: " + this.header);
+		return(this.header);
 	}
 	
 	public String getSequence()
 	{
-		return("Sequence: " + this.sequence);
+		return(this.sequence);
 	}
 	
-	public String getGC()
+	public float getGCRatio()
 	{
-		return("GC Ratio: " + this.gcRatio);
+		return(this.gcRatio);
 	}
 	
 	public void computeGC()
 	{
 		int gcCount = 0;
 		
-		String str = this.sequence.toString();
-		String[] seqs = str.split("");
+		String[] seqs = this.sequence.split("");
 		
 		for (String s : seqs)
 		{
@@ -168,7 +169,7 @@ public class FastaSequence {
 			fs.computeGC();
 			System.out.println(fs.getHeader());
 			System.out.println(fs.getSequence());
-			System.out.println(fs.getGC());
+			System.out.println(fs.getGCRatio());
 		}
 
 		writeUnique(fileOut, fastaList);
