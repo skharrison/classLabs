@@ -1,9 +1,12 @@
 package lab5;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -14,13 +17,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableColumnModel;
 import java.io.File;
@@ -30,13 +34,12 @@ import java.util.ArrayList;
 public class SvDisplay extends JFrame 
 {
 	private static final long serialVersionUID = -2577401354224614779L;
-	private JCheckBox addNorm;
 	
 	public SvDisplay()
 	{
 		super("SV VISUALIZATION");
 		setLocationRelativeTo(null);
-		setSize(1000,500);
+		setSize(1500,500);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setJMenuBar(createMenuBar());
 		setVisible(true);
@@ -54,9 +57,20 @@ public class SvDisplay extends JFrame
 		JMenuItem openFiles = new JMenuItem("Open Images");
 		Imenu.add(openFiles);
 		openFiles.setMnemonic('O');
-		JMenuItem saveFile = new JMenuItem("Save");
+		
+		JMenu saveFile = new JMenu("Save Checked");
 		Imenu.add(saveFile);
-		saveFile.setMnemonic('S');
+		
+		JMenuItem savebed = new JMenuItem("Save bed");
+		savebed.setToolTipText("Save regions checked in verified column to new bed file");
+		saveFile.add(savebed);
+		
+		JMenuItem saveImg = new JMenuItem("Save images and regions to PDF");
+		saveFile.add(saveImg);
+		saveImg.setToolTipText("Save regions of interest including images to PDF file");
+		
+		JMenuItem newSession = new JMenuItem("Load New Session");
+		Imenu.add(newSession);
 		
 		openFiles.addActionListener(new ActionListener()
 		{
@@ -66,18 +80,8 @@ public class SvDisplay extends JFrame
 				try {
 					loadFromFile();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-			}
-		});
-		
-		saveFile.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				saveState();
 			}
 		});
 		
@@ -89,7 +93,7 @@ public class SvDisplay extends JFrame
 		JMenuItem saveBed = new JMenuItem("Save");
 		saveBed.setMnemonic('S');
 		covMenu.add(saveBed);
-		this.addNorm = new JCheckBox("Normalize Coverage");
+		JCheckBox addNorm = new JCheckBox("Normalize Coverage");
 		addNorm.setMnemonic('C');
 		covMenu.add(addNorm);
 		JMenu Cmenu = new JMenu("Display Comparisons");
@@ -99,31 +103,15 @@ public class SvDisplay extends JFrame
 		
 	}
 	
-	private void saveState()
-	{
-		JFileChooser jfc = new JFileChooser();	
-		if (jfc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
-			return;
-		
-		if(jfc.getSelectedFile().exists())
-		{
-			String message = "File " + jfc.getSelectedFile().getName() + " exists";
-			
-			if( JOptionPane.showConfirmDialog(this,  message) != JOptionPane.YES_OPTION)
-				return;
-		}
-		
-	}
-	
 	
 	/* TODO
 		- file chooser to remember last known directory
 		- make sure that images in proper format (horizontal)
-		-add in sample ID's as header for IGV image column
+		-Better way to add in sample ID's then manual entry at top
 		-want to base size of image render on how many samples there are in image
-		-split this up into multiple methods not just all in one
 		-enable user to save as one big image?? not sure 
 		-fix that must make frame bigger for info to display when first upload images
+		-get working checkbox's
 	*/
 	
 	private void loadFromFile() throws IOException
@@ -139,11 +127,20 @@ public class SvDisplay extends JFrame
 		{
 			return;
 		}
-		
-		JPanel jPanel = new JPanel();
-		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
-		jPanel.add(Box.createVerticalGlue());
 		File[] files = jfc.getSelectedFiles();
+		buildIGVTable(files);
+	
+	}
+	
+	private void buildIGVTable(File[] files) throws IOException
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double width = screenSize.getWidth();
+		double imgSize = width * .80;
+		double whatLeft = (width - imgSize) * .85;
+		int left = (int) whatLeft;
+		int intSize = (int) imgSize;
+		
 		ArrayList<BedRegion> bedList = new ArrayList<BedRegion>();
 		
 		for (File f : files)
@@ -153,34 +150,51 @@ public class SvDisplay extends JFrame
 			String chrom = info[0] + "_" + info[1];
 			String start = info[2];
 			String stop = info[3];
+			if (stop.endsWith(".png"))
+			{
+				
+			}
 			Image img = ImageIO.read(f);
-			Image scale = getScaledImage(img, 1000,200);
+			Image scale = getScaledImage(img, intSize,200);
 			ImageIcon imgBed = new ImageIcon(scale);
 			BedRegion myBed = new BedRegion(chrom, start, stop);
 			myBed.setImage(imgBed);
 			bedList.add(myBed);
 		}
 		
+		JPanel jPanel = new JPanel();
+		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.X_AXIS));
+		JTextField myText = new JTextField(40);
+		myText.setPreferredSize(new Dimension(intSize, 30));
+		Font font = new Font("Courier", Font.BOLD,14);
+		myText.setFont(font);
+		JLabel label = new JLabel("Strain Labels: ");
+		jPanel.add(label);
+		Box.Filler hFill = new Box.Filler(new Dimension(50,0), new Dimension(left, 0), new Dimension(1000, 0));
+		jPanel.add(hFill);
+		jPanel.add(myText);
 		BedTableModel bedTable = new BedTableModel(bedList);
 		JTable table = new JTable(bedTable);
-		table.setRowHeight(100);
+		table.setRowHeight(200);
 		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(3).setPreferredWidth(1000);
-		table.setPreferredScrollableViewportSize(table.getPreferredSize());
-		this.add(new JScrollPane(table));
-		
+		columnModel.getColumn(4).setPreferredWidth(intSize);
+		columnModel.getColumn(0).setPreferredWidth(100);
+		table.setFillsViewportHeight(true);
+		this.add(jPanel, BorderLayout.NORTH);
+		this.add(new JScrollPane(table), BorderLayout.CENTER);
+
 	}
 	
 	private Image getScaledImage(Image srcImg, int w, int h)
 	{
-	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g2 = resizedImg.createGraphics();
+		BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = resizedImg.createGraphics();
 
-	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-	    g2.drawImage(srcImg, 0, 0, w, h, null);
-	    g2.dispose();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.drawImage(srcImg, 0, 0, w, h, null);
+		g2.dispose();
 
-	    return resizedImg;
+		return resizedImg;
 	}
 	
 	public static void main(String[] args)

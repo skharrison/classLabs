@@ -14,6 +14,7 @@ public class BedRegion
 	public final String start;
 	public final String stop;
 	public ImageIcon igvImage;
+	Boolean verified;
 	
 	
 	BedRegion(String chrom, String start, String stop) 
@@ -28,7 +29,7 @@ public class BedRegion
 		this.igvImage = fImg;
 	}
 	
-	//reads in a bedfile path and produces list of BedRegion objects
+	// not necessary for GUI right now but thought could be helpful in future
 	public static List<BedRegion> readBedFile(String filepath) throws Exception
 	{
 		List<BedRegion> bedList = new ArrayList<BedRegion>();
@@ -38,7 +39,6 @@ public class BedRegion
 		
 		//add in error catching for malformed files instead of just breaking regardless
 		
-		boolean isHeader = false;
 		
 		while(true)
 		{
@@ -48,7 +48,7 @@ public class BedRegion
 			{
 				if (line.startsWith("CHROM"))
 				{
-					isHeader = true;
+					//don't want to do anything because means bed file has a header
 				}
 				else
 				{
@@ -70,14 +70,6 @@ public class BedRegion
 		
 		reader.close();
 		return(bedList);
-		
-	}
-	//test to make sure readBedFile worked
-	public static void main(String[] args) throws Exception
-	{
-		String fileIn = "/home/sarah/weirdData/mergeSV/noShareSV.bed";
-		List<BedRegion> bedList = BedRegion.readBedFile(fileIn);
-		System.out.println(bedList);
 		
 	}
 }

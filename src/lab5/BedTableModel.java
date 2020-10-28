@@ -4,21 +4,21 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
-public class BedTableModel extends AbstractTableModel
+public class BedTableModel extends AbstractTableModel 
 {
 	private static final long serialVersionUID = 1L;
 
 	private String[] columnNames = new String[]
 	{
-		"CHROM","START","STOP","IGV",
+		"CHROM","START","STOP", "VERIFIED","IGV",
 	};
 	
 	private Class[] classTypes = new Class[]
 	{
-		String.class, String.class, String.class, ImageIcon.class
+		String.class, String.class, String.class,Boolean.class, ImageIcon.class
 	};
 
-	private final List<BedRegion> beds;
+	private List<BedRegion> beds;
 	
 	public BedTableModel(List<BedRegion> bed)
 	{
@@ -35,27 +35,6 @@ public class BedTableModel extends AbstractTableModel
 	public Class<?> getColumnClass(int column)
 	{
 		return classTypes[column];
-//		if(column==0)
-//		{
-//			return String.class;
-//		}
-//		else if(column==1)
-//		{
-//			return String.class;
-//		}
-//		else if(column==2)
-//		{
-//			return String.class;
-//		}
-//		else if(column==3)
-//		{
-//			return ImageIcon.class;
-//		}
-//		
-//		else 
-//		{
-//			return null;
-//		}
 	}
 
 	@Override
@@ -69,6 +48,20 @@ public class BedTableModel extends AbstractTableModel
 		
 		return beds.size();
 	}
+	
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		if ( column == 3)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+ 
 
 	@Override
 	public Object getValueAt(int row, int column) 
@@ -88,11 +81,25 @@ public class BedTableModel extends AbstractTableModel
 		}
 		else if(column == 3)
 		{
+			return b.verified;
+		}
+		else if(column == 4)
+		{
 			return b.igvImage;
 		}
 		else 
 		{
 			return null;
 		}
+	}
+	
+	public void setValueAt(int row, int column)
+	{
+		BedRegion b = beds.get(row);
+		if(column==3)
+		{
+			b.verified = Boolean.TRUE;
+		}
+		super.fireTableCellUpdated(row, column);
 	}
 }
