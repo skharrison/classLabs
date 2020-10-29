@@ -162,6 +162,7 @@ public class FastaSequence {
 		String fileIn = "/home/sarah/school/adv_program/uniqueTest.fasta";
 		String fileOut = "/home/sarah/school/adv_program/uniqueTestOut.fasta";
 		
+	
 		List<FastaSequence> fastaList = FastaSequence.readFastaFile(fileIn);
 		
 		for(FastaSequence fs : fastaList)
