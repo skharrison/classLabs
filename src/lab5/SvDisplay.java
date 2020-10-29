@@ -39,7 +39,7 @@ public class SvDisplay extends JFrame
 	{
 		super("SV VISUALIZATION");
 		setLocationRelativeTo(null);
-		setSize(1500,500);
+		setSize(1700,500);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setJMenuBar(createMenuBar());
 		setVisible(true);
@@ -137,7 +137,7 @@ public class SvDisplay extends JFrame
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double width = screenSize.getWidth();
 		double imgSize = width * .80;
-		double whatLeft = (width - imgSize) * .85;
+		double whatLeft = (width - imgSize) * .70;
 		int left = (int) whatLeft;
 		int intSize = (int) imgSize;
 		
@@ -150,12 +150,8 @@ public class SvDisplay extends JFrame
 			String chrom = info[0] + "_" + info[1];
 			String start = info[2];
 			String stop = info[3];
-			if (stop.endsWith(".png"))
-			{
-				
-			}
 			Image img = ImageIO.read(f);
-			Image scale = getScaledImage(img, intSize,200);
+			Image scale = getScaledImage(img, intSize,300);
 			ImageIcon imgBed = new ImageIcon(scale);
 			BedRegion myBed = new BedRegion(chrom, start, stop);
 			myBed.setImage(imgBed);
@@ -175,10 +171,10 @@ public class SvDisplay extends JFrame
 		jPanel.add(myText);
 		BedTableModel bedTable = new BedTableModel(bedList);
 		JTable table = new JTable(bedTable);
-		table.setRowHeight(200);
+		table.setRowHeight(300);
 		TableColumnModel columnModel = table.getColumnModel();
 		columnModel.getColumn(4).setPreferredWidth(intSize);
-		columnModel.getColumn(0).setPreferredWidth(100);
+		columnModel.getColumn(0).setPreferredWidth(150);
 		table.setFillsViewportHeight(true);
 		this.add(jPanel, BorderLayout.NORTH);
 		this.add(new JScrollPane(table), BorderLayout.CENTER);
