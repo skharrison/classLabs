@@ -10,12 +10,12 @@ public class BedTableModel extends AbstractTableModel
 
 	private String[] columnNames = new String[]
 	{
-		"CHROM","START","STOP", "VERIFIED","IGV",
+		"CHROM","START","STOP","IGV",
 	};
 	
 	private Class[] classTypes = new Class[]
 	{
-		String.class, String.class, String.class,Boolean.class, ImageIcon.class
+		String.class, String.class, String.class, ImageIcon.class
 	};
 
 	private List<BedRegion> beds;
@@ -49,18 +49,18 @@ public class BedTableModel extends AbstractTableModel
 		return beds.size();
 	}
 	
-	@Override
-	public boolean isCellEditable(int row, int column)
-	{
-		if ( column == 3)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+//	@Override
+//	public boolean isCellEditable(int row, int column)
+//	{
+//		if ( column == 3)
+//		{
+//			return true;
+//		}
+//		else
+//		{
+//			return false;
+//		}
+//	}
  
 
 	@Override
@@ -79,11 +79,11 @@ public class BedTableModel extends AbstractTableModel
 		{
 			return b.stop;
 		}
+//		else if(column == 3)
+//		{
+//			return b.verified;
+//		}
 		else if(column == 3)
-		{
-			return b.verified;
-		}
-		else if(column == 4)
 		{
 			return b.igvImage;
 		}
@@ -93,13 +93,13 @@ public class BedTableModel extends AbstractTableModel
 		}
 	}
 	
-	public void setValueAt(int row, int column)
-	{
-		BedRegion b = beds.get(row);
-		if(column==3)
-		{
-			b.verified = Boolean.TRUE;
-		}
-		super.fireTableCellUpdated(row, column);
-	}
+//	public void setValueAt(int row, int column)
+//	{
+//		BedRegion b = beds.get(row);
+//		if(column==3)
+//		{
+//			b.verified = Boolean.TRUE;
+//		}
+//		super.fireTableCellUpdated(row, column);
+//	}
 }
