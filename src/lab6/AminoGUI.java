@@ -1,14 +1,13 @@
 package lab6;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
-import java.util.Timer;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,9 +30,7 @@ public class AminoGUI extends JPanel
 	private JLabel timerAmount;
 	private int question;
 	private boolean start = true;
-	//private Timer timer;
-	//private long startTime = -1;
-	//private int duration = 30;
+	private Thread endTimer;
 	
 	public static String[] SHORT_NAMES = 
 		{"A","R", "N", "D", "C", "Q", "E", 
@@ -76,6 +73,7 @@ public class AminoGUI extends JPanel
 		mainButton = new JButton("Begin");
 		panel.add(mainButton);
 		cancelButton = new JButton("Cancel?");
+		cancelButton.setEnabled(false);
 		panel.add(cancelButton);
 		mainButton.addActionListener(new ActionListener()
 			{
@@ -100,10 +98,11 @@ public class AminoGUI extends JPanel
 		jPanel.setLayout(new GridLayout(0,3));
 		ansCorrect = new JLabel("Correct Answers: " + numCorrect);
 		ansIncorrect = new JLabel("Incorrect Answers: " + numIncorrect);
-		timerAmount = new JLabel("Time Left");
+		timerAmount = new JLabel("");
 		jPanel.add(ansCorrect);
 		jPanel.add(ansIncorrect);
 		jPanel.add(timerAmount);
+		jPanel.setBackground(Color.cyan);
 		add(jPanel,BorderLayout.NORTH);
 	}
 	
@@ -112,17 +111,23 @@ public class AminoGUI extends JPanel
 		if (start == true)
 		{
 			answer.setEnabled(true);
+			cancelButton.setEnabled(true);
 			mainButton.setText("Submit");
 			notStart();
 			getQuestion();
+			if (endTimer != null)
+			{
+				endTimer.stop();
+			}
+			EndTimer timeStop = new EndTimer(this);
+			endTimer = new Thread(timeStop);
+			endTimer.start();
 			
 		}
 		
 		else
 		{
 			String userAnswer = answer.getText().toUpperCase();
-			//System.out.println(userAnswer);
-			//System.out.println(SHORT_NAMES[question]);
 			
 			if (userAnswer.equals(SHORT_NAMES[question]))
 			{
@@ -145,6 +150,8 @@ public class AminoGUI extends JPanel
 		totalQuestion = 1;
 		numCorrect = 0;
 		numIncorrect = 0;
+		timerAmount = new JLabel("");
+		endTimer.stop();
 		ansIncorrect.setText("Incorrect Answers: " + numIncorrect);
 		ansCorrect.setText("Correct Answers: " + numCorrect);
 		output.setText("<html><center><big><b>Ready to learn the amino acids???!</b></big>"
@@ -184,15 +191,44 @@ public class AminoGUI extends JPanel
 		start = false;
 	}
 	
-//	private class MyTimer implements Runnable
-//	{
-//
-//		@Override
-//		public void run() {
-//			// TODO Auto-generated method stub
-//			
-//		}
-//
-//	}
+	private synchronized void endMessage()
+	{
+		timerAmount.setText("");
+		//ansIncorrect.setText("");
+		//ansCorrect.setText("");
+		output.setText("<html><center><b><font color=fuchsia>Times up!</b></font><br><br><b><font color=blue>"
+				+ "Correct Answers: " +numCorrect + "</font></b></center><br><b><font color=red> " + 
+						"Incorrect Answers: " +numIncorrect + "</font></b></center></html>");
+		start = true;
+		mainButton.setText("Keep Going?");
+		answer.setEnabled(false);
+	}
 	
+	private class EndTimer implements Runnable
+	{	
+		private AminoGUI myGui;
+		
+		EndTimer(AminoGUI me)
+		{
+			myGui = me;
+		}
+		@Override
+		public void run()
+		{
+			try
+			{
+				for (int i = 30; i > 0; i--)
+				{
+					myGui.timerAmount.setText("Time Left: " + i);
+					myGui.timerAmount.setForeground(Color.red);
+					Thread.sleep(1000);
+				}
+			}
+			catch (Exception e)
+			{
+				System.out.println("EndTimer error " + e);
+			}
+			myGui.endMessage();
+		}
+	}
 }
