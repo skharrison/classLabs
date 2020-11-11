@@ -47,7 +47,6 @@ public class AminoGUI extends JPanel
 		"serine","threonine","tryptophan", 
 		"tyrosine", "valine"};
 	
-	
 	public static void main(String[] args)
 	{
 		JFrame theWindow = new JFrame("AMINO ACID QUIZ");
@@ -117,9 +116,9 @@ public class AminoGUI extends JPanel
 			getQuestion();
 			if (endTimer != null)
 			{
-				endTimer.stop();
+				endTimer.interrupt();
 			}
-			EndTimer timeStop = new EndTimer(this);
+			EndTimer timeStop = new EndTimer();
 			endTimer = new Thread(timeStop);
 			endTimer.start();
 			
@@ -147,11 +146,11 @@ public class AminoGUI extends JPanel
 	
 	private synchronized void cancelButton()
 	{
+		endTimer.interrupt();
 		totalQuestion = 1;
 		numCorrect = 0;
 		numIncorrect = 0;
-		timerAmount = new JLabel("");
-		endTimer.stop();
+		timerAmount.setText("");
 		ansIncorrect.setText("Incorrect Answers: " + numIncorrect);
 		ansCorrect.setText("Correct Answers: " + numCorrect);
 		output.setText("<html><center><big><b>Ready to learn the amino acids???!</b></big>"
@@ -194,41 +193,39 @@ public class AminoGUI extends JPanel
 	private synchronized void endMessage()
 	{
 		timerAmount.setText("");
-		//ansIncorrect.setText("");
-		//ansCorrect.setText("");
 		output.setText("<html><center><b><font color=fuchsia>Times up!</b></font><br><br><b><font color=blue>"
 				+ "Correct Answers: " +numCorrect + "</font></b></center><br><b><font color=red> " + 
 						"Incorrect Answers: " +numIncorrect + "</font></b></center></html>");
 		start = true;
+		mainButton.setEnabled(true);
 		mainButton.setText("Keep Going?");
 		answer.setEnabled(false);
+		endTimer.interrupt();
 	}
 	
 	private class EndTimer implements Runnable
 	{	
-		private AminoGUI myGui;
-		
-		EndTimer(AminoGUI me)
-		{
-			myGui = me;
-		}
 		@Override
 		public void run()
 		{
 			try
 			{
-				for (int i = 30; i > 0; i--)
+				for (int i = 30; i >= 0; i--)
 				{
-					myGui.timerAmount.setText("Time Left: " + i);
-					myGui.timerAmount.setForeground(Color.red);
+					if (i == 0)
+					{
+						mainButton.setEnabled(false);
+					}
+					timerAmount.setText("Time Left: " + i);
+					timerAmount.setForeground(Color.red);
 					Thread.sleep(1000);
 				}
 			}
-			catch (Exception e)
+			catch (InterruptedException e)
 			{
-				System.out.println("EndTimer error " + e);
+				//do nothing
 			}
-			myGui.endMessage();
-		}
+			endMessage();
+		}	
 	}
 }
