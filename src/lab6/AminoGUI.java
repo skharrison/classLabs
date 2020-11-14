@@ -116,7 +116,7 @@ public class AminoGUI extends JPanel
 			getQuestion();
 			if (endTimer != null)
 			{
-				endTimer.interrupt();
+				endTimer.stop();
 			}
 			EndTimer timeStop = new EndTimer();
 			endTimer = new Thread(timeStop);
@@ -146,7 +146,7 @@ public class AminoGUI extends JPanel
 	
 	private synchronized void cancelButton()
 	{
-		endTimer.interrupt();
+		endTimer.stop();
 		totalQuestion = 1;
 		numCorrect = 0;
 		numIncorrect = 0;
@@ -200,7 +200,6 @@ public class AminoGUI extends JPanel
 		mainButton.setEnabled(true);
 		mainButton.setText("Keep Going?");
 		answer.setEnabled(false);
-		endTimer.interrupt();
 	}
 	
 	private class EndTimer implements Runnable
@@ -221,9 +220,9 @@ public class AminoGUI extends JPanel
 					Thread.sleep(1000);
 				}
 			}
-			catch (InterruptedException e)
+			catch (Exception e)
 			{
-				//do nothing
+				System.out.println("Error thrown in endtimer");
 			}
 			endMessage();
 		}	
