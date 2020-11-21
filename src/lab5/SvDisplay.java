@@ -39,7 +39,7 @@ public class SvDisplay extends JFrame
 	{
 		super("SV VISUALIZATION");
 		setLocationRelativeTo(null);
-		setSize(1700,500);
+		setSize(400,200);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setJMenuBar(createMenuBar());
 		setVisible(true);
@@ -49,9 +49,7 @@ public class SvDisplay extends JFrame
 	
 	private JMenuBar createMenuBar() 
 	{
-		JMenuBar menuBar;
-		
-		menuBar = new JMenuBar();
+		JMenuBar menuBar = new JMenuBar();
 		JMenu Imenu = new JMenu("IGV Viewer");
 		menuBar.add(Imenu);
 		JMenuItem openFiles = new JMenuItem("Open Images");
@@ -103,7 +101,6 @@ public class SvDisplay extends JFrame
 		
 	}
 	
-	
 	/* TODO
 		- file chooser to remember last known directory
 		- make sure that images in proper format (horizontal)
@@ -136,12 +133,13 @@ public class SvDisplay extends JFrame
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double width = screenSize.getWidth();
-		double imgSize = width * .85;
-		double whatLeft = (width - imgSize) * .63;
+		double imgSize = width * .80;
+		double whatLeft = (width - imgSize) * .65;
 		int left = (int) whatLeft;
 		int intSize = (int) imgSize;
 		
-		ArrayList<BedRegion> bedList = new ArrayList<BedRegion>();
+		//ArrayList<BedRegion> bedList = new ArrayList<BedRegion>();
+		MyTableModel model = new MyTableModel();
 		
 		for (File f : files)
 		{
@@ -151,33 +149,35 @@ public class SvDisplay extends JFrame
 			String start = info[2];
 			String stop = info[3];
 			Image img = ImageIO.read(f);
-			Image scale = getScaledImage(img, intSize,137);
+			Image scale = getScaledImage(img, intSize,250);
 			ImageIcon imgBed = new ImageIcon(scale);
-			BedRegion myBed = new BedRegion(chrom, start, stop);
-			myBed.setImage(imgBed);
-			bedList.add(myBed);
+//			BedRegion myBed = new BedRegion(chrom, start, stop);
+//			myBed.setImage(imgBed);
+//			bedList.add(myBed);
+			model.addRow(new Object[] {chrom,start,stop,false,imgBed});
 		}
 		
 		JPanel jPanel = new JPanel();
 		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.X_AXIS));
 		JTextField myText = new JTextField(40);
 		myText.setPreferredSize(new Dimension(intSize, 30));
-		Font font = new Font("Courier", Font.BOLD,14);
+		Font font = new Font("Courier", Font.BOLD,11);
 		myText.setFont(font);
 		JLabel label = new JLabel("Strain Labels: ");
 		jPanel.add(label);
 		Box.Filler hFill = new Box.Filler(new Dimension(5,0), new Dimension(left, 0), new Dimension(100, 0));
 		jPanel.add(hFill);
 		jPanel.add(myText);
-		BedTableModel bedTable = new BedTableModel(bedList);
-		JTable table = new JTable(bedTable);
-		table.setRowHeight(137);
+		//BedTableModel bedTable = new BedTableModel(bedList);
+		JTable table = new JTable(model);
+		table.setRowHeight(250);
 		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(3).setPreferredWidth(intSize);
+		columnModel.getColumn(4).setPreferredWidth(intSize);
 		//columnModel.getColumn(0).setPreferredWidth(125);
 		table.setFillsViewportHeight(true);
 		this.add(jPanel, BorderLayout.NORTH);
 		this.add(new JScrollPane(table), BorderLayout.CENTER);
+		this.setSize(screenSize);
 
 	}
 	

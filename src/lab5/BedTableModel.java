@@ -2,6 +2,7 @@ package lab5;
 
 import java.util.List;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.table.AbstractTableModel;
 
 public class BedTableModel extends AbstractTableModel 
@@ -10,12 +11,12 @@ public class BedTableModel extends AbstractTableModel
 
 	private String[] columnNames = new String[]
 	{
-		"CHROM","START","STOP","IGV",
+		"CHROM","START","STOP","Verified", "IGV",
 	};
 	
 	private Class[] classTypes = new Class[]
 	{
-		String.class, String.class, String.class, ImageIcon.class
+		String.class, String.class, String.class, JCheckBox.class, ImageIcon.class
 	};
 
 	private List<BedRegion> beds;
@@ -49,18 +50,18 @@ public class BedTableModel extends AbstractTableModel
 		return beds.size();
 	}
 	
-//	@Override
-//	public boolean isCellEditable(int row, int column)
-//	{
-//		if ( column == 3)
-//		{
-//			return true;
-//		}
-//		else
-//		{
-//			return false;
-//		}
-//	}
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		if ( column == 3)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
  
 
 	@Override
@@ -79,11 +80,11 @@ public class BedTableModel extends AbstractTableModel
 		{
 			return b.stop;
 		}
-//		else if(column == 3)
-//		{
-//			return b.verified;
-//		}
 		else if(column == 3)
+		{
+			return b.verified;
+		}
+		else if(column == 4)
 		{
 			return b.igvImage;
 		}
