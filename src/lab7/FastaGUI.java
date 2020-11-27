@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 
+
+
 public class FastaGUI extends JPanel
 {
 	private static final long serialVersionUID = 6255331940674882923L;
@@ -29,6 +31,7 @@ public class FastaGUI extends JPanel
 	private String typedPattern;
 	private int patternCount;
 	private List<FastaSequence> fastaList;
+	private Thread counter;
 	
 	public FastaGUI(List<FastaSequence> fastaL)
 	{
@@ -69,6 +72,9 @@ public class FastaGUI extends JPanel
 		//determine how to check to make sure the user is input only ATCG
 		this.typedPattern = answer;
 		pattern.setText("Pattern: " + typedPattern);
+		SlowCalc counting = new SlowCalc();
+		counter = new Thread(counting);
+		counter.start();
 	}
 	
 	public static void main(String[] args) throws Exception
@@ -85,14 +91,25 @@ public class FastaGUI extends JPanel
 	
 	private class SlowCalc implements Runnable
 	{	
+		int numIndex;
+		public SlowCalc()
+		{
+			this.numIndex = typedPattern.length();
+		}
+		
 		@Override
 		public void run()
 		{
 			try
 			{
+				int index =0;
 				for (FastaSequence f: fastaList)
 				{
-					
+					while(index+numIndex <= f.sequence.length())
+					{
+						System.out.println(f.sequence.substring(index,index+numIndex));
+						index++;
+					}
 				}
 			}
 			catch (Exception e)

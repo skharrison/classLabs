@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 public class FastaSequence {
 	
 	private final String header;
-	private final String sequence;
+	public final String sequence;
 	float gcRatio;
 	
 	FastaSequence(String header, String sequence) 
