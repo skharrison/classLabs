@@ -24,38 +24,21 @@ public class MyTableModel extends DefaultTableModel {
 	{
 		return classTypes[column];
 	}
-	
-	
-//    @Override
-//    public Class<?> getColumnClass(int columnIndex) {
-//      Class clazz = String.class;
-//      switch (columnIndex) {
-//        case 3:
-//          clazz = Boolean.class;
-//          break;
-//        case 4:
-//          clazz = ImageIcon.class;
-//          break;
-//      }
-//      return clazz;
-//    }
 
-    @Override
-    public boolean isCellEditable(int row, int column)
-    {
-      return column == 3;
-    }
+	@Override
+	public boolean isCellEditable(int row, int column)
+	{
+		return column == 3;
+	}
 
-    @Override
-    public void setValueAt(Object value, int row, int column)
-    {
-      if (value instanceof Boolean && column == 3) 
-      {
-        System.out.println(value);
-        Vector rowData = (Vector)getDataVector().get(row);
-        rowData.set(3, (boolean)value);
-        fireTableCellUpdated(row, column);
-      }
-    }
+	public void setValueAt(Object value, int row, int column)
+	{
+		if (value instanceof Boolean && column == 3) 
+		{
+			Vector rowData = (Vector)getDataVector().get(row);
+			rowData.set(3, (boolean)value);
+			fireTableCellUpdated(row, column);
+		}
+	}
 
 }
