@@ -144,7 +144,7 @@ public class AminoGUI extends JPanel
 		}
 	}
 	
-	private synchronized void cancelButton()
+	private void cancelButton()
 	{
 		endTimer.stop();
 		totalQuestion = 1;
@@ -160,21 +160,21 @@ public class AminoGUI extends JPanel
 		answer.setEnabled(false);
 	}
 	
-	private synchronized void updateCorrect()
+	private void updateCorrect()
 	{
 		numCorrect++;
 		ansCorrect.setText("Correct Answers: " + numCorrect);
 		totalQuestion++; 
 		getQuestion();
 	}
-	private synchronized void updateIncorrect()
+	private void updateIncorrect()
 	{
 		numIncorrect++;
 		ansIncorrect.setText("Incorrect Answers: " + numIncorrect);
 		totalQuestion++; 
 		getQuestion();
 	}
-	private synchronized void getQuestion()
+	private void getQuestion()
 	{
 		Random r = new Random();
 		int x = r.nextInt(19);
