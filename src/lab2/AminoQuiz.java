@@ -24,9 +24,7 @@ public class AminoQuiz
 	
 	public static void StartQuiz(double timeLimit) 
 	{
-		
 		boolean correct = true;
-		
 		System.out.println("~Begin Amino Acid Quiz~");
 		
 		while (correct)
@@ -52,22 +50,15 @@ public class AminoQuiz
 				if (ans.equals(c) == true)
 				{
 					ansCorrect += 1;
-					
 					long elapsedT = System.currentTimeMillis();
 					double timeCheck = (elapsedT - startT)/(1000d);
-					
-
-				
 					if(timeCheck >= timeLimit)
 					{
 						System.out.println("-----------------------");
 						System.out.println("OUT OF TIME...GAME OVER!");
 						System.out.println("Correct answer: " + SHORT_NAMES[x]);
-						
 						break;
-						
 					}
-					
 				}
 				
 				else if(ans.equals("QUIT") == true)
@@ -77,75 +68,30 @@ public class AminoQuiz
 					break;
 				}
 				
-				
-				
 				else
 				{
-					
 					System.out.println("-----------------------");
 					System.out.println("INCORRECT ANSWER.");
 					System.out.println("Correct answer: " + SHORT_NAMES[x]);
 					// System.out.println("Score: " + ansCorrect);
 					break;
 				}
-				
-				
-	
-				
 			}
-
-	
-			
 			long endT = System.currentTimeMillis();
 			double totalTsec = (endT - startT)/ 1000d;
-			
-			
 			System.out.println("Total time: " + totalTsec + " seconds");
 			System.out.println("Score: " + ansCorrect);
 			correct = false;
 			scan.close();
-
 		}
-		
-	
-		
 	}
 	
-
-		
 	public static void main( String[] args )
 	{
-		
-	
 		// want to add error checking to ensure input is number
-		
 		int numSecs = 0;
-		
 		numSecs = Integer.parseInt(args[0]);
-		StartQuiz(numSecs);	
-		
-		
-	
-			
-			
-		
-		
+		StartQuiz(numSecs);		
 	} 
-
-				
-		
-		
-		
 }
-		
-		
-
-			
-			
-		
-		
-		
-		
-	
-
 
