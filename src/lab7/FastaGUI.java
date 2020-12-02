@@ -15,6 +15,15 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+/*
+ * Parses a fasta file and counts the occurances of desired string containing ATCG 
+ * Put fasta file path in main method 
+ * Test fasta is of fasta file that is 1.2 Gig
+ * TODO: 
+ * - add where user can upload a file
+ * - checks to ensure file is in correct format and produce proper warning message
+ * - add continuous output that stacks on top instead of just printing the total num at that time
+ */
 public class FastaGUI extends JPanel
 {
 	private static final long serialVersionUID = 6255331940674882923L;
@@ -76,18 +85,20 @@ public class FastaGUI extends JPanel
 		canceled = false;
 		String answer = JOptionPane.showInputDialog(panel,"Input sequence to search:", null);
 		
-		//checks to make sure only ATGC not case sensitive
-		if (answer.matches("(?i)[ATCG]*")) 
+		if (answer != null)
 		{
-			this.typedPattern = answer.toUpperCase();
-			pattern.setText("Pattern: " + typedPattern);
-			startCounting();
+			//checks to make sure only ATGC not case sensitive
+			if (answer.matches("(?i)[ATCG]*"))
+			{
+				this.typedPattern = answer.toUpperCase();
+				pattern.setText("Pattern: " + typedPattern);
+				startCounting();
+			}
+			else 
+			{
+				JOptionPane.showMessageDialog(null,"INVALID INPUT! Start again. ONLY input A,T,C, and G's");
+			}
 		}
-		else 
-		{
-			JOptionPane.showMessageDialog(null,"INVALID INPUT! Start again. ONLY input A,T,C, and G's");
-		}
-		
 	}
 	
 	private void cancelButton()
@@ -107,7 +118,7 @@ public class FastaGUI extends JPanel
 		counter.start();
 	}
 	
-	private synchronized void endMessage(float totalTime, int totalNum)
+	private void endMessage(float totalTime, int totalNum)
 	{
 		String outputText = ("<html><center><b>Parsing finished in " + totalTime + " seconds" + "</b>"
 				+ "<br><br>Total counts found: " + totalNum + "<br>");
@@ -118,7 +129,7 @@ public class FastaGUI extends JPanel
 	
 	public static void main(String[] args) throws Exception
 	{
-		String fileIn = "/home/sarah/eclipse-workspace/classLabs/src/lab7/GCF_000143395.1_Attacep1.0_genomic.fna";
+		String fileIn = "/home/sarah/school/adv_program/lab7/GCF_011125445.2_MU-UCD_Fhet_4.1_genomic.fna";
 		List<FastaSequence> fastaList = FastaSequence.readFastaFile(fileIn);
 		JFrame theWindow = new JFrame("FASTA PATTERN COUNTER");
 		theWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -137,6 +148,7 @@ public class FastaGUI extends JPanel
 			numIndex = typedPattern.length();
 			start = System.currentTimeMillis();
 		}
+		
 		public void run()
 		{
 			try
@@ -148,7 +160,7 @@ public class FastaGUI extends JPanel
 				outerloop:
 				for (FastaSequence f: fastaList)
 				{
-					int index =0;
+					int index = 0;
 					while(index+numIndex <= f.sequence.length())
 					{	
 						if (canceled == true)
@@ -160,7 +172,6 @@ public class FastaGUI extends JPanel
 								{
 									if (canceled == true)
 									{
-										output.setText("");
 										pattern.setText("Pattern: ");
 										startButton.setEnabled(true);
 										cancelButton.setEnabled(false);
@@ -192,11 +203,19 @@ public class FastaGUI extends JPanel
 								lastUpdate = System.currentTimeMillis();
 							}
 						}	
+						
 						index++;
 					}
 				}
-				float totalTime = (System.currentTimeMillis() - start)/(1000f);
-				endMessage(totalTime, list.size());
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						float totalTime = (System.currentTimeMillis() - start)/(1000f);
+						endMessage(totalTime, list.size());
+					}
+				});
 			}
 			
 			catch (Exception e)
