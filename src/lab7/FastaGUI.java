@@ -5,33 +5,28 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-//import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-
-
-
 
 public class FastaGUI extends JPanel
 {
 	private static final long serialVersionUID = 6255331940674882923L;
-	private JButton mainButton;
-	private JButton cancelButton;
+	private final JButton startButton;
+	private final JButton cancelButton;
 	private JLabel output;
 	private JLabel pattern;
 	private JPanel panel;
 	private String typedPattern;
-	private int patternCount;
 	private List<FastaSequence> fastaList;
 	private Thread counter;
+	private boolean canceled = false;
 	
 	public FastaGUI(List<FastaSequence> fastaL)
 	{
@@ -41,19 +36,28 @@ public class FastaGUI extends JPanel
 		output.setFont(new Font("Courier", Font.PLAIN, 12));
 		output.setPreferredSize(new Dimension(500,200));
 		add(output, BorderLayout.CENTER);
-		mainButton = new JButton("Start");
+		startButton = new JButton("Start");
 		panel = new JPanel();
-		panel.add(mainButton);
+		panel.add(startButton);
 		panel.setLayout(new GridLayout(0,2));
 		cancelButton = new JButton("Cancel?");
 		cancelButton.setEnabled(false);
 		panel.add(cancelButton);
-		mainButton.addActionListener(new java.awt.event.ActionListener() 
+		startButton.addActionListener(new java.awt.event.ActionListener() 
 		{
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) 
 			{
 				startButton();
+			}
+		});
+		
+		cancelButton.addActionListener(new java.awt.event.ActionListener() 
+		{
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) 
+			{
+				cancelButton();
 			}
 		});
 		add(panel, BorderLayout.SOUTH);
@@ -68,55 +72,137 @@ public class FastaGUI extends JPanel
 	
 	private void startButton()
 	{
+		output.setText("");
+		canceled = false;
 		String answer = JOptionPane.showInputDialog(panel,"Input sequence to search:", null);
-		//determine how to check to make sure the user is input only ATCG
-		this.typedPattern = answer;
-		pattern.setText("Pattern: " + typedPattern);
+		
+		//checks to make sure only ATGC not case sensitive
+		if (answer.matches("(?i)[ATCG]*")) 
+		{
+			this.typedPattern = answer.toUpperCase();
+			pattern.setText("Pattern: " + typedPattern);
+			startCounting();
+		}
+		else 
+		{
+			JOptionPane.showMessageDialog(null,"INVALID INPUT! Start again. ONLY input A,T,C, and G's");
+		}
+		
+	}
+	
+	private void cancelButton()
+	{
+		canceled = true;
+	}
+	
+	private void startCounting()
+	{
+		if (counter != null)
+		{
+			canceled = false;
+		}
+		cancelButton.setEnabled(true);
 		SlowCalc counting = new SlowCalc();
 		counter = new Thread(counting);
 		counter.start();
 	}
 	
+	private synchronized void endMessage(float totalTime, int totalNum)
+	{
+		String outputText = ("<html><center><b>Parsing finished in " + totalTime + " seconds" + "</b>"
+				+ "<br><br>Total counts found: " + totalNum + "<br>");
+		output.setText(outputText);
+		startButton.setEnabled(true);
+		cancelButton.setEnabled(false);
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
-		String fileIn = "/home/sarah/school/adv_program/lab7/GCF_000010545.1_ASM1054v1_genomic.fna";
+		String fileIn = "/home/sarah/eclipse-workspace/classLabs/src/lab7/GCF_000143395.1_Attacep1.0_genomic.fna";
 		List<FastaSequence> fastaList = FastaSequence.readFastaFile(fileIn);
-		
 		JFrame theWindow = new JFrame("FASTA PATTERN COUNTER");
 		theWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		theWindow.setContentPane(new FastaGUI(fastaList));
 		theWindow.pack();
 		theWindow.setVisible(true);
 	}
-	
+
 	private class SlowCalc implements Runnable
 	{	
-		int numIndex;
+		private final int numIndex;
+		private final long start;
+		
 		public SlowCalc()
 		{
-			this.numIndex = typedPattern.length();
+			numIndex = typedPattern.length();
+			start = System.currentTimeMillis();
 		}
-		
-		@Override
 		public void run()
 		{
 			try
 			{
-				int index =0;
+				long lastUpdate = System.currentTimeMillis();
+				List<String> list = new ArrayList<String>();
+				startButton.setEnabled(false);
+				
+				outerloop:
 				for (FastaSequence f: fastaList)
 				{
+					int index =0;
 					while(index+numIndex <= f.sequence.length())
-					{
-						System.out.println(f.sequence.substring(index,index+numIndex));
+					{	
+						if (canceled == true)
+						{
+							SwingUtilities.invokeLater(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									if (canceled == true)
+									{
+										output.setText("");
+										pattern.setText("Pattern: ");
+										startButton.setEnabled(true);
+										cancelButton.setEnabled(false);
+									}
+								}
+							});
+							break outerloop;
+						}
+						int theI = index;
+						String sub = f.sequence.substring(theI,theI+numIndex).toUpperCase();
+						if (sub.equals(typedPattern))
+						{
+							list.add(sub);
+							
+							if( (System.currentTimeMillis() - lastUpdate)/(1000f) > 5)
+							{
+								SwingUtilities.invokeLater(new Runnable()
+								{
+									@Override
+									public void run()
+									{
+										if (canceled == false)
+										{
+											output.setText("Pattern found: " + list.size());
+										}
+									}
+								});
+								
+								lastUpdate = System.currentTimeMillis();
+							}
+						}	
 						index++;
 					}
 				}
+				float totalTime = (System.currentTimeMillis() - start)/(1000f);
+				endMessage(totalTime, list.size());
 			}
+			
 			catch (Exception e)
 			{
 				System.out.println("Error thrown in endtimer");
 			}
-//			endMessage();
-		}	
+		}
 	}
 }
