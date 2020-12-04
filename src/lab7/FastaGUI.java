@@ -81,23 +81,29 @@ public class FastaGUI extends JPanel
 	
 	private void startButton()
 	{
-		output.setText("");
+		//output.setText("");
 		canceled = false;
 		String answer = JOptionPane.showInputDialog(panel,"Input sequence to search:", null);
 		
-		if (answer != null)
+		if (answer == null)
 		{
-			//checks to make sure only ATGC not case sensitive
-			if (answer.matches("(?i)[ATCG]*"))
-			{
-				this.typedPattern = answer.toUpperCase();
-				pattern.setText("Pattern: " + typedPattern);
-				startCounting();
-			}
-			else 
-			{
-				JOptionPane.showMessageDialog(null,"INVALID INPUT! Start again. ONLY input A,T,C, and G's");
-			}
+			//Do nothing 
+		}
+		//checks to make sure only ATGC not case sensitive
+		else if (answer.matches("(?i)[^\s][ATCG]*"))
+		{
+			this.typedPattern = answer.toUpperCase();
+			pattern.setText("Pattern: " + typedPattern);
+			startCounting();
+		}
+		//if user types in nothing just restart starbutton
+		else if (answer.equals(""))
+		{
+			startButton();
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null,"INVALID INPUT! Start again. ONLY input A,T,C, and G's");
 		}
 	}
 	
@@ -131,7 +137,7 @@ public class FastaGUI extends JPanel
 	{
 		String fileIn = "/home/sarah/school/adv_program/lab7/GCF_011125445.2_MU-UCD_Fhet_4.1_genomic.fna";
 		List<FastaSequence> fastaList = FastaSequence.readFastaFile(fileIn);
-		JFrame theWindow = new JFrame("FASTA PATTERN COUNTER");
+		JFrame theWindow = new JFrame("DNA FASTA PATTERN COUNTER");
 		theWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		theWindow.setContentPane(new FastaGUI(fastaList));
 		theWindow.pack();
