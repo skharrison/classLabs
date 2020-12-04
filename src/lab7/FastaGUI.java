@@ -35,7 +35,7 @@ public class FastaGUI extends JPanel
 	private String typedPattern;
 	private List<FastaSequence> fastaList;
 	private Thread counter;
-	private boolean canceled = false;
+	private volatile boolean canceled = false;
 	
 	public FastaGUI(List<FastaSequence> fastaL)
 	{
