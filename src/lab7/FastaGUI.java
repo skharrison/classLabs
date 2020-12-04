@@ -81,7 +81,6 @@ public class FastaGUI extends JPanel
 	
 	private void startButton()
 	{
-		//output.setText("");
 		canceled = false;
 		String answer = JOptionPane.showInputDialog(panel,"Input sequence to search:", null);
 		
